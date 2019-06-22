@@ -1,17 +1,34 @@
 #include "speed_hack.hpp"
 
+void clear() {
+	COORD topLeft = { 0, 0 };
+	HANDLE console = GetStdHandle(STD_OUTPUT_HANDLE);
+	CONSOLE_SCREEN_BUFFER_INFO screen;
+	DWORD written;
+
+	GetConsoleScreenBufferInfo(console, &screen);
+	FillConsoleOutputCharacterA(
+		console, ' ', screen.dwSize.X * screen.dwSize.Y, topLeft, &written
+	);
+	FillConsoleOutputAttribute(
+		console, FOREGROUND_GREEN | FOREGROUND_RED | FOREGROUND_BLUE,
+		screen.dwSize.X * screen.dwSize.Y, topLeft, &written
+	);
+	SetConsoleCursorPosition(console, topLeft);
+}
+
 void MAIN(LPVOID hModule)
 {
-	bool ac = false;
-	auto lastSpeed = 1.0;
+	bool ac = false;	
 	while (true)
 	{
 		if (GetKeyState(VK_SHIFT) & 0x8000)
 		{
 			if (!ac)
 			{
-				AllocConsole();
+				AllocConsole();				
 				freopen_s((FILE**)stdout, "CONOUT$", "w", stdout);
+				clear();
 #ifdef IS_DEBUG
 				std::cout << "DEBUG: YES" << std::endl;
 #else
@@ -19,23 +36,33 @@ void MAIN(LPVOID hModule)
 #endif
 				ac = true;
 			}
-			if (lastSpeed != 5.0)
+			if (Speedhack::lastspeed != 2.0)
 			{
-				Speedhack::InitializeSpeedHack(5.0);
-				lastSpeed = 5.0;
-				std::cout << "SPEED: " << Speedhack::multiplier << std::endl;
+				Speedhack::InitializeSpeedHack(2.0);
+				clear();
+#ifdef IS_DEBUG
+				std::cout << "DEBUG: YES" << std::endl;
+#else
+				std::cout << "DEBUG: NO" << std::endl;
+#endif
+				std::cout << "SPEED: " << Speedhack::lastspeed << std::endl;
 			}
 		}
 		else
 		{
-			if (lastSpeed != 1.0)
+			if (Speedhack::lastspeed != 1.0)
 			{
 				Speedhack::InitializeSpeedHack(1.0);
-				lastSpeed = 1.0;
-				std::cout << "SPEED: " << Speedhack::multiplier << std::endl;
+				clear();
+#ifdef IS_DEBUG
+				std::cout << "DEBUG: YES" << std::endl;
+#else
+				std::cout << "DEBUG: NO" << std::endl;
+#endif
+				std::cout << "SPEED: " << Speedhack::lastspeed << std::endl;
 			}
 		}
-		Sleep(1);
+		Sleep(100);
 	}
 }
 
