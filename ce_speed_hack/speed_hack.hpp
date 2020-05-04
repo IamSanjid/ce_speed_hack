@@ -45,21 +45,22 @@ namespace Speedhack
 		DWORD owner;
 	};
 
-	void lock(TSimpleLock d)
+	void lock(TSimpleLock& d)
 	{
 		auto tid = GetCurrentThreadId();
-		if (d.owner == tid)
+		if (d.owner != tid)
 		{
 			do {
 				Sleep(0);
 			} while (InterlockedExchange(&d.count, 1) == 0);
+			d.owner = tid;
 		}
 		else {
 			InterlockedIncrement(&d.count);
 		}
 	}
 
-	void unlock(TSimpleLock d)
+	void unlock(TSimpleLock& d)
 	{
 		if (d.count == 1)
 			d.owner = 0;
